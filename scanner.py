@@ -41,7 +41,7 @@ for stock in stocks:
         gain = ((close_price - open_price) / open_price) * 100
 
         # Qualification logic
-        if low_price >= open_price * 0.998 and rsi_value > 70 and gain > 3.5 and close_price > df["Close"].iloc[-2]  # Close(0) > Close(-2) and close_price > df["Close"].iloc[-3]  # Close(0) > Close(-3):
+        if low_price >= open_price * 0.998 and rsi_value > 70 and gain > 3.5 and close_price > df["Close"].iloc[-2] and close_price > df["Close"].iloc[-3] :
             stock_info = (
                 f"{stock} | Date {date} | "
                 f"Open {open_price:.2f} | "
