@@ -2,8 +2,8 @@ name: NSE Scanner
 
 on:
   schedule:
-    - cron: '30 8 * * 1-5'
-    - cron: '30 9 * * 1-5'
+    - cron: '30 8 * * 1-5'   # run every weekday at 8:30 AM IST
+    - cron: '30 9 * * 1-5'   # run every weekday at 9:30 AM IST
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,11 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - run: python scanner.py
+      - name: Generate NSE symbols file
+        run: python generate_symbols.py
+
+      - name: Run scanner
+        run: python scanner.py
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
