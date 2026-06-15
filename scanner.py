@@ -31,23 +31,25 @@ for stock in stocks:
         latest = df.iloc[-1]
         date = latest.name.strftime("%d-%m-%Y")
 
-        if pd.isna(latest["Open"]) or pd.isna(latest["Close"]) or pd.isna(latest["RSI"]):
-            qualified.append(f"❌ {stock} | Error: Missing values")
-            continue
+        # Convert values to scalars
+        open_price = float(latest["Open"])
+        close_price = float(latest["Close"])
+        low_price = float(latest["Low"])
+        rsi_value = float(latest["RSI"])
 
-        gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
+        gain = ((close_price - open_price) / open_price) * 100
 
         stock_info = (
             f"{stock} | Date {date} | "
-            f"Open {latest['Open']:.2f} | "
-            f"Close {latest['Close']:.2f} | "
-            f"Low {latest['Low']:.2f} | "
-            f"RSI {latest['RSI']:.1f} | "
+            f"Open {open_price:.2f} | "
+            f"Close {close_price:.2f} | "
+            f"Low {low_price:.2f} | "
+            f"RSI {rsi_value:.1f} | "
             f"Gain {gain:.2f}%"
         )
 
         # Qualification logic
-        if latest["Low"] >= latest["Open"] * 0.998 and latest["RSI"] > 70 and gain > 3.5:
+        if low_price >= open_price * 0.998 and rsi_value > 70 and gain > 3.5:
             qualified.append("✅ " + stock_info)
         else:
             qualified.append("❌ " + stock_info)
