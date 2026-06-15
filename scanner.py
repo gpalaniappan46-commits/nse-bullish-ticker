@@ -12,7 +12,8 @@ if not BOT_TOKEN or not CHAT_ID:
 
 stocks = ["RELIANCE.NS", "TCS.NS", "INFY.NS", "TATACAP.NS"]
 
-results = []
+qualified = []
+all_results = []
 
 for stock in stocks:
     try:
@@ -33,7 +34,6 @@ for stock in stocks:
 
         gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
 
-        # Always append stock info, even if it doesn't qualify
         stock_info = (
             f"{stock} | Open {latest['Open']:.2f} | "
             f"Close {latest['Close']:.2f} | "
@@ -47,14 +47,24 @@ for stock in stocks:
             and latest["RSI"] > 70
             and gain > 3.5
         ):
-            results.append("✅ " + stock_info)
+            qualified.append("✅ " + stock_info)
+            all_results.append("✅ " + stock_info)
         else:
-            results.append("❌ " + stock_info)
+            all_results.append("❌ " + stock_info)
 
     except Exception as e:
-        results.append(f"{stock} | Error: {e}")
+        all_results.append(f"{stock} | Error: {e}")
 
-message = "🚀 NSE Scan\n\n" + "\n".join(results)
+# Build Telegram message
+message = "🚀 NSE Scan\n\n"
 
+if qualified:
+    message += "Qualified Stocks ✅\n" + "\n".join(qualified) + "\n\n"
+else:
+    message += "Qualified Stocks ✅\nNone found today\n\n"
+
+message += "All Stocks (with prices)\n" + "\n".join(all_results)
+
+# Send to Telegram
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 requests.post(url, json={"chat_id": CHAT_ID, "text": message})
