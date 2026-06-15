@@ -47,6 +47,14 @@ for stock in stocks:
         print(f"Error in {stock}: {e}")
 
 message = "🚀 NSE Scan\n\n" + "\n".join(results) if results else "No stocks found"
+print(
+    stock,
+    "Open:", latest["Open"],
+    "Low:", latest["Low"],
+    "Close:", latest["Close"],
+    "RSI:", latest["RSI"],
+    "Gain:", gain
+)
 
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
