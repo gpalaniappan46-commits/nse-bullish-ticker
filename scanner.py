@@ -18,7 +18,7 @@ for stock in stocks:
         if df is None or len(df) < 20:
             continue
 
-        df["RSI"] = RSIIndicator(df["Close"], window=14).rsi()
+        df["RSI"] = RSIIndicator(df["Close"], window=8).rsi()
 
         latest = df.iloc[-1]
         prev = df.iloc[-2]
@@ -26,10 +26,10 @@ for stock in stocks:
         if pd.isna(latest["RSI"]):
             continue
 
-        gain = ((latest["Close"] - prev["Close"]) / prev["Close"]) * 100
+        gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
 
         if (
-            latest["Low"] <= latest["Open"] * 1.001
+            latest["Low"] <= latest["Open"] * 0.998
             and latest["RSI"] > 70
             and gain > 4
         ):
