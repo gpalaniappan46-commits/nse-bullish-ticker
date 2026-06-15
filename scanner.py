@@ -11,7 +11,8 @@ CHAT_ID = os.environ.get("CHAT_ID")
 if not BOT_TOKEN or not CHAT_ID:
     raise Exception("Missing BOT_TOKEN or CHAT_ID in GitHub Secrets")
 
-stocks = ["RELIANCE.NS", "TCS.NS", "INFY.NS", "TATACAP.NS"]
+with open("nse_symbols.csv") as f:
+    stocks = [line.strip() for line in f if line.strip()]
 
 qualified = []
 
