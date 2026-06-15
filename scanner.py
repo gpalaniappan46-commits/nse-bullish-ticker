@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import os
 from ta.momentum import RSIIndicator
+from datetime import datetime
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
@@ -24,6 +25,7 @@ for stock in stocks:
 
         df["RSI"] = RSIIndicator(df["Close"], window=8).rsi()
         latest = df.iloc[-1]
+        date = latest.name.strftime("%d-%m-%Y")  # candle date
 
         if (
             pd.isna(latest["Open"]) or
@@ -35,7 +37,8 @@ for stock in stocks:
         gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
 
         stock_info = (
-            f"{stock} | Open {latest['Open']:.2f} | "
+            f"{stock} | Date {date} | "
+            f"Open {latest['Open']:.2f} | "
             f"Close {latest['Close']:.2f} | "
             f"Low {latest['Low']:.2f} | "
             f"RSI {latest['RSI']:.1f} | "
@@ -56,7 +59,8 @@ for stock in stocks:
         all_results.append(f"{stock} | Error: {e}")
 
 # Build Telegram message
-message = "🚀 NSE Scan\n\n"
+scan_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+message = f"🚀 NSE Scan (Run at {scan_time})\n\n"
 
 if qualified:
     message += "Qualified Stocks ✅\n" + "\n".join(qualified) + "\n\n"
