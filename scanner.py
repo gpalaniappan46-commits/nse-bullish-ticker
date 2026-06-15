@@ -31,11 +31,11 @@ for stock in stocks:
         latest = df.iloc[-1]
         date = latest.name.strftime("%d-%m-%Y")
 
-        # Convert values to scalars
-        open_price = float(latest["Open"])
-        close_price = float(latest["Close"])
-        low_price = float(latest["Low"])
-        rsi_value = float(latest["RSI"])
+        # Convert values to scalars safely
+        open_price = latest["Open"].iloc[0] if hasattr(latest["Open"], "iloc") else float(latest["Open"])
+        close_price = latest["Close"].iloc[0] if hasattr(latest["Close"], "iloc") else float(latest["Close"])
+        low_price = latest["Low"].iloc[0] if hasattr(latest["Low"], "iloc") else float(latest["Low"])
+        rsi_value = latest["RSI"].iloc[0] if hasattr(latest["RSI"], "iloc") else float(latest["RSI"])
 
         gain = ((close_price - open_price) / open_price) * 100
 
