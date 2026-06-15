@@ -26,7 +26,7 @@ for stock in stocks:
 
         df["RSI"] = RSIIndicator(df["Close"], window=8).rsi()
         latest = df.iloc[-1]
-        date = latest.name.strftime("%d-%m-%Y")  # candle date
+        date = latest.name.strftime("%d-%m-%Y")
 
         if (
             pd.isna(latest["Open"]) or
@@ -47,15 +47,18 @@ for stock in stocks:
             f"Gain {gain:.2f}%"
         )
 
+        # Qualification logic
         if (
             latest["Low"] >= latest["Open"] * 0.998
             and latest["RSI"] > 70
             and gain > 3.5
         ):
             qualified.append("✅ " + stock_info)
-            all_results.append("✅ " + stock_info)
         else:
-            all_results.append("❌ " + stock_info)
+            qualified.append("❌ " + stock_info)
+
+        # Always append to all_results
+        all_results.append(stock_info)
 
     except Exception as e:
         all_results.append(f"{stock} | Error: {e}")
@@ -63,13 +66,9 @@ for stock in stocks:
 # Build Telegram message
 scan_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 message = f"🚀 NSE Scan (Run at {scan_time})\n\n"
+message += "Legend: ✅ Qualified | ❌ Not Qualified\n\n"
 
-if qualified:
-    message += "Qualified Stocks ✅\n" + "\n".join(qualified) + "\n\n"
-else:
-    message += "Qualified Stocks ✅\nNone found today\n\n"
-
-message += "All Stocks (with prices)\n" + "\n".join(all_results)
+message += "All Stocks (with prices)\n" + "\n".join(qualified)
 
 # Send to Telegram
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
