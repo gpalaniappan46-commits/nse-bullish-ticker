@@ -24,7 +24,7 @@ for stock in stocks:
             all_results.append(f"{stock} | Error: Not enough data")
             continue
 
-        df["RSI"] = RSIIndicator(df["Close"], window=8).rsi()
+        df["RSI"] = RSIIndicator(df["Close"].squeeze(), window=8).rsi()
         latest = df.iloc[-1]
         date = latest.name.strftime("%d-%m-%Y")
 
