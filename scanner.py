@@ -21,6 +21,7 @@ for stock in stocks:
         df = yf.download(stock, period="3mo", interval="1d", progress=False)
 
         if df is None or len(df) < 20:
+            all_results.append(f"{stock} | Error: Not enough data")
             continue
 
         df["RSI"] = RSIIndicator(df["Close"], window=8).rsi()
@@ -32,6 +33,7 @@ for stock in stocks:
             pd.isna(latest["Close"]) or
             pd.isna(latest["RSI"])
         ):
+            all_results.append(f"{stock} | Error: Missing values")
             continue
 
         gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
