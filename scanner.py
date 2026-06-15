@@ -35,7 +35,7 @@ for stock in stocks:
         gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
 
         if (
-            latest["Low"] <= latest["Open"] * 0.998
+            latest["Low"] >= latest["Open"] * 0.998
             and latest["RSI"] > 70
             and gain > 3.5
         ):
