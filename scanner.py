@@ -14,17 +14,16 @@ if not BOT_TOKEN or not CHAT_ID:
 stocks = ["RELIANCE.NS", "TCS.NS", "INFY.NS", "TATACAP.NS"]
 
 qualified = []
-all_results = []
 
 for stock in stocks:
     try:
         df = yf.download(stock, period="3mo", interval="1d", progress=False)
 
         if df is None or len(df) < 20:
-            all_results.append(f"{stock} | Error: Not enough data")
+            qualified.append(f"❌ {stock} | Error: Not enough data")
             continue
 
-        # Ensure Close is a Series, not a DataFrame
+        # Ensure Close is a Series
         if isinstance(df["Close"], pd.DataFrame):
             df["Close"] = df["Close"].iloc[:, 0]
 
@@ -32,12 +31,8 @@ for stock in stocks:
         latest = df.iloc[-1]
         date = latest.name.strftime("%d-%m-%Y")
 
-        if (
-            pd.isna(latest["Open"]) or
-            pd.isna(latest["Close"]) or
-            pd.isna(latest["RSI"])
-        ):
-            all_results.append(f"{stock} | Error: Missing values")
+        if pd.isna(latest["Open"]) or pd.isna(latest["Close"]) or pd.isna(latest["RSI"]):
+            qualified.append(f"❌ {stock} | Error: Missing values")
             continue
 
         gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
@@ -51,20 +46,14 @@ for stock in stocks:
             f"Gain {gain:.2f}%"
         )
 
-        if (
-            latest["Low"] >= latest["Open"] * 0.998
-            and latest["RSI"] > 70
-            and gain > 3.5
-        ):
+        # Qualification logic
+        if latest["Low"] >= latest["Open"] * 0.998 and latest["RSI"] > 70 and gain > 3.5:
             qualified.append("✅ " + stock_info)
         else:
             qualified.append("❌ " + stock_info)
 
-        # Always append to all_results
-        all_results.append(stock_info)
-
     except Exception as e:
-        all_results.append(f"{stock} | Error: {e}")
+        qualified.append(f"❌ {stock} | Error: {e}")
 
 # Build Telegram message
 scan_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
