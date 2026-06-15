@@ -37,7 +37,7 @@ for stock in stocks:
         if (
             latest["Low"] <= latest["Open"] * 0.998
             and latest["RSI"] > 70
-            and gain > 4
+            and gain > 3.5
         ):
             results.append(
                 f"{stock} | +{gain:.2f}% | RSI {latest['RSI']:.1f}"
