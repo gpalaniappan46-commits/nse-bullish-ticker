@@ -7,7 +7,7 @@ from ta.momentum import RSIIndicator
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
-stocks = ["RELIANCE.NS", "TCS.NS", "INFY.NS"]
+stocks = ["RELIANCE.NS", "TCS.NS", "INFY.NS", "TATACAP.NS"]
 
 results = []
 
