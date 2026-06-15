@@ -24,6 +24,10 @@ for stock in stocks:
             all_results.append(f"{stock} | Error: Not enough data")
             continue
 
+        # Ensure Close is a Series, not a DataFrame
+        if isinstance(df["Close"], pd.DataFrame):
+            df["Close"] = df["Close"].iloc[:, 0]
+
         df["RSI"] = RSIIndicator(df["Close"].squeeze(), window=8).rsi()
         latest = df.iloc[-1]
         date = latest.name.strftime("%d-%m-%Y")
@@ -47,7 +51,6 @@ for stock in stocks:
             f"Gain {gain:.2f}%"
         )
 
-        # Qualification logic
         if (
             latest["Low"] >= latest["Open"] * 0.998
             and latest["RSI"] > 70
@@ -67,7 +70,6 @@ for stock in stocks:
 scan_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 message = f"🚀 NSE Scan (Run at {scan_time})\n\n"
 message += "Legend: ✅ Qualified | ❌ Not Qualified\n\n"
-
 message += "All Stocks (with prices)\n" + "\n".join(qualified)
 
 # Send to Telegram
