@@ -11,6 +11,7 @@ CHAT_ID = os.environ.get("CHAT_ID")
 if not BOT_TOKEN or not CHAT_ID:
     raise Exception("Missing BOT_TOKEN or CHAT_ID in GitHub Secrets")
 
+# Load NSE symbols from your file
 with open("nse_symbols.csv") as f:
     stocks = [line.strip() for line in f if line.strip()]
 
@@ -21,7 +22,6 @@ for stock in stocks:
         df = yf.download(stock, period="3mo", interval="1d", progress=False)
 
         if df is None or len(df) < 20:
-            qualified.append(f"❌ {stock} | Error: Not enough data")
             continue
 
         # Ensure Close is a Series
@@ -33,36 +33,38 @@ for stock in stocks:
         date = latest.name.strftime("%d-%m-%Y")
 
         # Convert values to scalars safely
-        open_price = latest["Open"].iloc[0] if hasattr(latest["Open"], "iloc") else float(latest["Open"])
-        close_price = latest["Close"].iloc[0] if hasattr(latest["Close"], "iloc") else float(latest["Close"])
-        low_price = latest["Low"].iloc[0] if hasattr(latest["Low"], "iloc") else float(latest["Low"])
-        rsi_value = latest["RSI"].iloc[0] if hasattr(latest["RSI"], "iloc") else float(latest["RSI"])
+        open_price = latest["Open"].item() if hasattr(latest["Open"], "item") else float(latest["Open"])
+        close_price = latest["Close"].item() if hasattr(latest["Close"], "item") else float(latest["Close"])
+        low_price = latest["Low"].item() if hasattr(latest["Low"], "item") else float(latest["Low"])
+        rsi_value = latest["RSI"].item() if hasattr(latest["RSI"], "item") else float(latest["RSI"])
 
         gain = ((close_price - open_price) / open_price) * 100
 
-        stock_info = (
-            f"{stock} | Date {date} | "
-            f"Open {open_price:.2f} | "
-            f"Close {close_price:.2f} | "
-            f"Low {low_price:.2f} | "
-            f"RSI {rsi_value:.1f} | "
-            f"Gain {gain:.2f}%"
-        )
-
         # Qualification logic
         if low_price >= open_price * 0.998 and rsi_value > 70 and gain > 3.5:
+            stock_info = (
+                f"{stock} | Date {date} | "
+                f"Open {open_price:.2f} | "
+                f"Close {close_price:.2f} | "
+                f"Low {low_price:.2f} | "
+                f"RSI {rsi_value:.1f} | "
+                f"Gain {gain:.2f}%"
+            )
             qualified.append("✅ " + stock_info)
-        else:
-            qualified.append("❌ " + stock_info)
 
     except Exception as e:
-        qualified.append(f"❌ {stock} | Error: {e}")
+        # Skip errors silently
+        continue
 
 # Build Telegram message
 scan_time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 message = f"🚀 NSE Scan (Run at {scan_time})\n\n"
-message += "Legend: ✅ Qualified | ❌ Not Qualified\n\n"
-message += "All Stocks (with prices)\n" + "\n".join(qualified)
+message += "Legend: ✅ Qualified\n\n"
+
+if qualified:
+    message += "Qualified Stocks\n" + "\n".join(qualified)
+else:
+    message += "No stocks qualified today"
 
 # Send to Telegram
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
