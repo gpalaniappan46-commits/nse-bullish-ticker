@@ -22,7 +22,6 @@ for stock in stocks:
             continue
 
         df["RSI"] = RSIIndicator(df["Close"], window=8).rsi()
-
         latest = df.iloc[-1]
 
         if (
@@ -34,32 +33,28 @@ for stock in stocks:
 
         gain = ((latest["Close"] - latest["Open"]) / latest["Open"]) * 100
 
-        print(
-    stock,
-    "Open:", latest["Open"],
-    "Low:", latest["Low"],
-    "Close:", latest["Close"],
-    "RSI:", latest["RSI"],
-    
+        # Always append stock info, even if it doesn't qualify
+        stock_info = (
+            f"{stock} | Open {latest['Open']:.2f} | "
+            f"Close {latest['Close']:.2f} | "
+            f"Low {latest['Low']:.2f} | "
+            f"RSI {latest['RSI']:.1f} | "
+            f"Gain {gain:.2f}%"
+        )
 
         if (
             latest["Low"] >= latest["Open"] * 0.998
             and latest["RSI"] > 70
             and gain > 3.5
         ):
-            results.append(
-                f"{stock} | +{gain:.2f}% | RSI {latest['RSI']:.1f}"
-            )
+            results.append("✅ " + stock_info)
+        else:
+            results.append("❌ " + stock_info)
 
     except Exception as e:
-        print(f"Error in {stock}: {e}")
+        results.append(f"{stock} | Error: {e}")
 
-message = "🚀 NSE Scan\n\n" + "\n".join(results) if results else "No stocks found"
-
+message = "🚀 NSE Scan\n\n" + "\n".join(results)
 
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-requests.post(url, json={
-    "chat_id": CHAT_ID,
-    "text": message
-})
+requests.post(url, json={"chat_id": CHAT_ID, "text": message})
