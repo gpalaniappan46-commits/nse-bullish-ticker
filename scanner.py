@@ -19,7 +19,7 @@ qualified = []
 
 for stock in stocks:
     try:
-        df = yf.download(stock, period="3mo", interval="1d", progress=False)
+        df = yf.download(stock, period="1mo", interval="1d", progress=False)
 
         if df is None or len(df) < 20:
             continue
