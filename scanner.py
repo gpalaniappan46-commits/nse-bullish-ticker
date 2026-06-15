@@ -19,7 +19,7 @@ qualified = []
 
 for stock in stocks:
     try:
-        df = yf.download(stock, period="1mo", interval="1d", progress=False)
+        df = yf.download(stock, period="3mo", interval="1d", progress=False)
 
         if df is None or len(df) < 20:
             continue
@@ -33,27 +33,33 @@ for stock in stocks:
         date = latest.name.strftime("%d-%m-%Y")
 
         # Convert values to scalars safely
-        open_price = latest["Open"].item() if hasattr(latest["Open"], "item") else float(latest["Open"])
-        close_price = latest["Close"].item() if hasattr(latest["Close"], "item") else float(latest["Close"])
-        low_price = latest["Low"].item() if hasattr(latest["Low"], "item") else float(latest["Low"])
-        rsi_value = latest["RSI"].item() if hasattr(latest["RSI"], "item") else float(latest["RSI"])
+        open_price = float(latest["Open"])
+        close_price = float(latest["Close"])
+        low_price = float(latest["Low"])
+        high_price = float(latest["High"])
+        rsi_value = float(latest["RSI"])
 
         gain = ((close_price - open_price) / open_price) * 100
 
-        # Qualification logic
-        if low_price >= open_price * 0.998 and rsi_value > 70 and gain > 3.5 and close_price >= high_price * 0.99 :
+        # Qualification logic (matches your scanner)
+        if (
+            rsi_value > 75
+            and close_price > df["Close"].iloc[-2]
+            and close_price > df["Close"].iloc[-3]
+            and close_price > open_price
+        ):
             stock_info = (
                 f"{stock} | Date {date} | "
                 f"Open {open_price:.2f} | "
                 f"Close {close_price:.2f} | "
                 f"Low {low_price:.2f} | "
+                f"High {high_price:.2f} | "
                 f"RSI {rsi_value:.1f} | "
                 f"Gain {gain:.2f}%"
             )
             qualified.append("✅ " + stock_info)
 
-    except Exception as e:
-        # Skip errors silently
+    except Exception:
         continue
 
 # Build Telegram message
