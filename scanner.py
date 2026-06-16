@@ -43,10 +43,7 @@ for stock in stocks:
 
         # Qualification logic (matches your scanner)
         if (
-            rsi_value > 75
-            and close_price > df["Close"].iloc[-2]
-            and close_price > df["Close"].iloc[-3]
-            and close_price > open_price
+            if low_price >= open_price * 0.998 and rsi_value > 70 and gain > 3.5
         ):
             stock_info = (
                 f"{stock} | Date {date} | "
